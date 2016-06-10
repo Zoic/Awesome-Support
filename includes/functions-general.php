@@ -89,7 +89,7 @@ function wpas_get_close_ticket_url( $ticket_id ) {
 
 /**
  * Get safe tags for content output.
- * 
+ *
  * @return array List of allowed tags
  * @since  3.0.0
  */
@@ -451,7 +451,7 @@ function wpas_write_log( $handle, $message ) {
  * Show a warning if dependencies aren't loaded.
  *
  * If the dependencies aren't present in the plugin folder
- * we display a warning to the user and explain him how to 
+ * we display a warning to the user and explain him how to
  * fix the issue.
  *
  * @since  3.0.2
@@ -874,7 +874,7 @@ function wpas_get_reply_link( $reply_id ) {
 		WPAS()->session->add( 'force_all_replies', true );
 	}
 
-	$link = get_permalink( $reply->post_parent ) . "#reply-$reply_id";
+	$link = get_permalink( $reply->post_parent );
 
 	return esc_url( $link );
 
