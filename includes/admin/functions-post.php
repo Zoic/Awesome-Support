@@ -89,6 +89,10 @@ function wpas_filter_ticket_data( $data, $postarr ) {
 
 	}
 
+	if ( $data['post_name'] == $data['post_title'] || ! wpas_is_valid_md5( $data['post_name'] ) ) {
+		$data['post_name'] = md5( $data['post_title'] . $data['post_author'] . microtime() );
+	}
+
 	return $data;
 }
 

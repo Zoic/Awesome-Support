@@ -124,7 +124,7 @@ function wpas_open_ticket( $data ) {
 	 */
 	$post = apply_filters( 'wpas_open_ticket_data', array(
 		'post_content'   => $content,
-		'post_name'      => $title,
+		'post_name'      => md5( $title . $user_id . microtime() ),
 		'post_title'     => $title,
 		'post_status'    => 'queued',
 		'post_type'      => 'ticket',
@@ -134,7 +134,7 @@ function wpas_open_ticket( $data ) {
 	) );
 
 	return wpas_insert_ticket( $post, false, false );
-	
+
 }
 
 add_action( 'wpas_do_submit_new_ticket', 'wpas_new_ticket_submission' );
@@ -261,7 +261,7 @@ function wpas_insert_ticket( $data = array(), $post_id = false, $agent_id = fals
 
 	/**
 	 * Filter the data right before inserting it in the post.
-	 * 
+	 *
 	 * @var array
 	 */
 	$data = apply_filters( 'wpas_open_ticket_data', $data );
@@ -285,7 +285,7 @@ function wpas_insert_ticket( $data = array(), $post_id = false, $agent_id = fals
 	/**
 	 * Insert the post in database using the regular WordPress wp_insert_post
 	 * function with default values corresponding to our post type structure.
-	 * 
+	 *
 	 * @var boolean
 	 */
 	$ticket_id = wp_insert_post( $data, false );
@@ -405,7 +405,7 @@ function wpas_get_tickets( $ticket_status = 'open', $args = array(), $post_statu
 	} else {
 		return $query->posts;
 	}
-	
+
 
 }
 
@@ -465,10 +465,22 @@ function wpas_add_reply( $data, $parent_id = false, $author_id = false ) {
 		$data['post_author'] = $current_user->ID;
 	}
 
+	if ( $data['post_name'] == $data['post_title'] || ! wpas_is_valid_md5( $data['post_name'] ) ) {
+		$data['post_name'] = md5( $data['post_title'] . $data['post_author'] . microtime() );
+	}
+
 	$insert = wpas_insert_reply( $data, $parent_id );
 
 	return $insert;
 
+}
+
+function wpas_is_valid_md5( $string = '' ) {
+	if ( strlen( $string ) == 32 && ctype_xdigit( $string ) ) {
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 add_action( 'wpas_do_submit_new_reply', 'wpas_new_reply_submission' );
@@ -739,6 +751,10 @@ function wpas_insert_reply( $data, $post_id = false ) {
 
 	if ( isset( $data['post_name'] ) && ! empty( $data['post_name'] ) ) {
 		$data['post_name'] = sanitize_title( $data['post_name'] );
+	}
+
+	if ( $data['post_name'] == $data['post_title'] || ! wpas_is_valid_md5( $data['post_name'] ) ) {
+		$data['post_name'] = md5( $data['post_title'] . $data['post_author'] . microtime() );
 	}
 
 	/**
